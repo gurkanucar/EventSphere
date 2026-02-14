@@ -7,6 +7,17 @@ import com.gucardev.eventsphere.domain.auth.role.entity.Role;
 import com.gucardev.eventsphere.domain.auth.role.repository.RoleRepository;
 import com.gucardev.eventsphere.domain.auth.user.entity.User;
 import com.gucardev.eventsphere.domain.auth.user.repository.UserRepository;
+import com.gucardev.eventsphere.domain.event.attendee.entity.Attendee;
+import com.gucardev.eventsphere.domain.event.attendee.repository.AttendeeRepository;
+import com.gucardev.eventsphere.domain.event.event.entity.Event;
+import com.gucardev.eventsphere.domain.event.event.repository.EventRepository;
+import com.gucardev.eventsphere.domain.event.organizer.entity.Organizer;
+import com.gucardev.eventsphere.domain.event.organizer.repository.OrganizerRepository;
+import com.gucardev.eventsphere.domain.event.session.entity.Session;
+import com.gucardev.eventsphere.domain.event.session.repository.SessionRepository;
+import com.gucardev.eventsphere.domain.event.ticket.entity.Ticket;
+import com.gucardev.eventsphere.domain.event.ticket.entity.TicketStatus;
+import com.gucardev.eventsphere.domain.event.ticket.repository.TicketRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,10 +25,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -28,6 +42,12 @@ public class DataSeeder {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final OrganizerRepository organizerRepository;
+    private final EventRepository eventRepository;
+    private final SessionRepository sessionRepository;
+    private final TicketRepository ticketRepository;
+    private final AttendeeRepository attendeeRepository;
 
     // Define standard constants
     private static final String ROLE_ADMIN = "ADMIN";
@@ -66,10 +86,33 @@ public class DataSeeder {
         Role userRole = createRoleIfNotFound(ROLE_USER, "Standard User", "Regular application user", userPerms);
 
         // 3. Create Users
-        createUserIfNotFound("admin@mail.com", "Admin", "Super", "password", Set.of(adminRole));
-        createUserIfNotFound("user@mail.com", "John", "Doe", "password", Set.of(userRole));
+        User admin = createUserIfNotFound("admin@mail.com", "Admin", "Super", "password", Set.of(adminRole));
+        User user = createUserIfNotFound("user@mail.com", "John", "Doe", "password", Set.of(userRole));
+
+        // 4. Create Domain Data
+        seedDomainData(admin, user);
 
         log.info("Seeding completed successfully.");
+    }
+
+    private void seedDomainData(User admin, User regularUser) {
+        // Create Organizer profile for Admin
+        Organizer adminOrganizer = createOrganizerIfNotFound(admin, "Admin Events Inc.", "https://adminevents.com");
+
+        // Create Attendee profile for Regular User
+        Attendee regularAttendee = createAttendeeIfNotFound(regularUser, "Vegetarian");
+
+        // Create Events
+        Event techConf = createEvent(adminOrganizer, "Tech Conference 2024", "A great tech conference", "Convention Center");
+        Event musicFest = createEvent(adminOrganizer, "Summer Music Fest", "Live music all day", "Central Park");
+
+        // Create Sessions for Tech Conf
+        createSession(techConf, "Keynote: Future of AI", "Dr. Alan Turing", LocalDateTime.now().plusDays(2).plusHours(9), LocalDateTime.now().plusDays(2).plusHours(10));
+        createSession(techConf, "Microservices at Scale", "Jane Doe", LocalDateTime.now().plusDays(2).plusHours(11), LocalDateTime.now().plusDays(2).plusHours(12));
+
+        // Create Tickets
+        createTicket(techConf, regularAttendee, "TICKET-001", new BigDecimal("100.00"), TicketStatus.SOLD);
+        createTicket(musicFest, regularAttendee, "TICKET-002", new BigDecimal("50.00"), TicketStatus.SOLD);
     }
 
     private Permission createPermissionIfNotFound(String action, String resource, String displayName, String desc) {
@@ -96,8 +139,8 @@ public class DataSeeder {
                 });
     }
 
-    private void createUserIfNotFound(String email, String name, String surname, String password, Set<Role> roles) {
-        if (userRepository.findByEmail(email).isEmpty()) {
+    private User createUserIfNotFound(String email, String name, String surname, String password, Set<Role> roles) {
+        return userRepository.findByEmail(email).orElseGet(() -> {
             User user = new User();
             user.setEmail(email);
             user.setName(name);
@@ -105,8 +148,67 @@ public class DataSeeder {
             user.setPassword(passwordEncoder.encode(password));
             user.setActivated(true);
             user.setRoles(roles);
-            userRepository.save(user);
+            User saved = userRepository.save(user);
             log.info("Created user: {}", email);
-        }
+            return saved;
+        });
+    }
+
+    private Organizer createOrganizerIfNotFound(User user, String orgName, String website) {
+        return organizerRepository.findAll().stream()
+                .filter(o -> o.getUser().getId().equals(user.getId()))
+                .findFirst()
+                .orElseGet(() -> {
+                    Organizer organizer = new Organizer();
+                    organizer.setUser(user);
+                    organizer.setOrganizationName(orgName);
+                    organizer.setWebsiteUrl(website);
+                    organizer.setContactEmail(user.getEmail());
+                    return organizerRepository.save(organizer);
+                });
+    }
+
+    private Attendee createAttendeeIfNotFound(User user, String prefs) {
+        return attendeeRepository.findAll().stream()
+                .filter(a -> a.getUser().getId().equals(user.getId()))
+                .findFirst()
+                .orElseGet(() -> {
+                    Attendee attendee = new Attendee();
+                    attendee.setUser(user);
+                    attendee.setPreferences(prefs);
+                    return attendeeRepository.save(attendee);
+                });
+    }
+
+    private Event createEvent(Organizer organizer, String title, String desc, String location) {
+        Event event = new Event();
+        event.setOrganizer(organizer);
+        event.setTitle(title);
+        event.setDescription(desc);
+        event.setLocation(location);
+        event.setStartTime(LocalDateTime.now().plusDays(2));
+        event.setEndTime(LocalDateTime.now().plusDays(3));
+        event.setIsPublished(true);
+        return eventRepository.save(event);
+    }
+
+    private void createSession(Event event, String title, String speaker, LocalDateTime start, LocalDateTime end) {
+        Session session = new Session();
+        session.setEvent(event);
+        session.setTitle(title);
+        session.setSpeakerName(speaker);
+        session.setStartTime(start);
+        session.setEndTime(end);
+        sessionRepository.save(session);
+    }
+
+    private void createTicket(Event event, Attendee attendee, String code, BigDecimal price, TicketStatus status) {
+        Ticket ticket = new Ticket();
+        ticket.setEvent(event);
+        ticket.setAttendee(attendee);
+        ticket.setTicketCode(code);
+        ticket.setPrice(price);
+        ticket.setStatus(status);
+        ticketRepository.save(ticket);
     }
 }
