@@ -18,13 +18,13 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
-#  datasource:
-#    url: ${DB_URL}
-#    username: ${DB_USERNAME}
-#    password: ${DB_PASSWORD}
-#    hikari:
-#      minimum-idle: 5
-#      maximum-pool-size: 15
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 15
 
   jpa:
     hibernate:
