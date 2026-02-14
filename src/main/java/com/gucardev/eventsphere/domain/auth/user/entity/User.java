@@ -24,7 +24,7 @@ public class User extends BaseEntity {
     @Id
     @UuidGenerator
     @JdbcTypeCode(SqlTypes.CHAR)
-    public UUID id;
+    private UUID id;
 
     private String password;
 
@@ -39,7 +39,7 @@ public class User extends BaseEntity {
 
     private Boolean activated;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
@@ -56,6 +56,12 @@ public class User extends BaseEntity {
             this.roles = new HashSet<>();
         }
         this.roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        if (this.roles != null) {
+            this.roles.remove(role);
+        }
     }
 
 }
