@@ -57,8 +57,8 @@ public class BaseSpecification {
                 return null; // No filtering, return all records
             }
             return deletedStatus == DeletedStatus.DELETED_TRUE
-                    ? cb.isTrue(root.get("deleted"))
-                    : cb.isFalse(root.get("deleted"));
+                    ? cb.isTrue(root.get("deletedAt"))
+                    : cb.isFalse(root.get("deletedAt"));
         };
     }
 

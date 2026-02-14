@@ -82,6 +82,8 @@ management:
   endpoint:
     health:
       show-details: ALWAYS
+#    env:
+#      show-values: ALWAYS
   server:
     port: 8081
   tracing:
