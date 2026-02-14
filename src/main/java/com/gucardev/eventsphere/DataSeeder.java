@@ -7,17 +7,17 @@ import com.gucardev.eventsphere.domain.auth.role.entity.Role;
 import com.gucardev.eventsphere.domain.auth.role.repository.RoleRepository;
 import com.gucardev.eventsphere.domain.auth.user.entity.User;
 import com.gucardev.eventsphere.domain.auth.user.repository.UserRepository;
-import com.gucardev.eventsphere.domain.event.attendee.entity.Attendee;
-import com.gucardev.eventsphere.domain.event.attendee.repository.AttendeeRepository;
-import com.gucardev.eventsphere.domain.event.event.entity.Event;
-import com.gucardev.eventsphere.domain.event.event.repository.EventRepository;
-import com.gucardev.eventsphere.domain.event.organizer.entity.Organizer;
-import com.gucardev.eventsphere.domain.event.organizer.repository.OrganizerRepository;
-import com.gucardev.eventsphere.domain.event.session.entity.Session;
-import com.gucardev.eventsphere.domain.event.session.repository.SessionRepository;
-import com.gucardev.eventsphere.domain.event.ticket.entity.Ticket;
-import com.gucardev.eventsphere.domain.event.ticket.entity.TicketStatus;
-import com.gucardev.eventsphere.domain.event.ticket.repository.TicketRepository;
+import com.gucardev.eventsphere.domain.attendee.entity.Attendee;
+import com.gucardev.eventsphere.domain.attendee.repository.AttendeeRepository;
+import com.gucardev.eventsphere.domain.event.entity.Event;
+import com.gucardev.eventsphere.domain.event.repository.EventRepository;
+import com.gucardev.eventsphere.domain.organizer.entity.Organizer;
+import com.gucardev.eventsphere.domain.organizer.repository.OrganizerRepository;
+import com.gucardev.eventsphere.domain.session.entity.Session;
+import com.gucardev.eventsphere.domain.session.repository.SessionRepository;
+import com.gucardev.eventsphere.domain.ticket.entity.Ticket;
+import com.gucardev.eventsphere.domain.ticket.entity.TicketStatus;
+import com.gucardev.eventsphere.domain.ticket.repository.TicketRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Slf4j
 @Component
