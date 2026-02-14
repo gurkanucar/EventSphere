@@ -1,0 +1,140 @@
+spring:
+  application:
+    name: events-sphere-test
+
+  # H2 In-Memory Database for Testing
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA/Hibernate Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+      envers:
+        audit_table_suffix: _history
+
+  # H2 Console (optional, for debugging)
+  h2:
+    console:
+      enabled: false
+
+  # Redis - Disabled for tests
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # Kafka - Disabled for tests
+  kafka:
+    enabled: false
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: test-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+    producer:
+      retries: 3
+
+  # Mail - Disabled for tests
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  # Servlet & Multipart
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # Disable unnecessary autoconfiguration
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+# Security Configuration
+security:
+  ignored-paths:
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
+    - "/auth/**"
+    - "/actuator/**"
+
+# App Specific Configuration
+app-specific-configs:
+  constants:
+    default-auditor: TEST_SYSTEM
+  ignored-logging-paths:
+    - "/sw.js"
+    - "/favicon.ico"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
+    - "/actuator/**"
+  security:
+    jwt:
+      secret-key: 8e8901fe01344c7d70f6c9525422664d2y4209fb0b0d30a1522fc3069171ed63b935d9ca98d4146d9ab5fffccb76300d23d412f9d07ec7051bbd1ed4dc8b893f
+      refresh-token-validity-in-minutes: 90
+      token-validity-in-minutes: 60
+    encryption:
+      secret: 9BpyP7n6mZ+c5E/h3F2h/sE+U8s/B4y5+jY8q6oW/rY=
+  api:
+    auth:
+      username: test-user
+      password: test-password
+      token: test-token
+  storage:
+    image-upload-dir: ./test-storage/images/
+    image-base-url: http://localhost/test-images/
+    directory: ./test-storage
+    allowed-extensions: jpg,jpeg,png,pdf,doc,docx
+
+# AWS S3 - Disabled for tests
+aws:
+  s3:
+    region: us-east-1
+    bucket-name: test-bucket
+    secret-key: test-secret
+    access-key: test-access
+    endpoint: http://localhost:9000
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.gucardev.eventsphere: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+
+# Swagger
+springdoc:
+  swagger-ui:
+    enabled: false
