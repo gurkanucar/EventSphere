@@ -1,0 +1,9 @@
+# Logging configuration
+logging:
+  level:
+    root: info
+    toolyverse.meerkat: info
+    com.gucardev.eventsphere.infrastructure.config.filter.RequestResponseLoggingFilter: info
+    org:
+      hibernate:
+        type: trace

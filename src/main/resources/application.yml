@@ -1,0 +1,173 @@
+# ==================== APPLICATION CONFIGURATION ====================
+server:
+  #  shutdown: graceful
+  shutdown: immediate
+
+spring:
+  application:
+    name: event-sphere
+
+  profiles:
+    default: dev
+
+  # ==================== DATASOURCE CONFIGURATION ====================
+  data:
+    jdbc:
+      dialect: mysql
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+#  datasource:
+#    url: ${DB_URL}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
+#    hikari:
+#      minimum-idle: 5
+#      maximum-pool-size: 15
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+      envers:
+        audit_table_suffix: _history
+    show-sql: true
+
+  # ==================== KAFKA CONFIGURATION ====================
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    # ==================== KAFKA PRODUCER CONFIG ====================
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+    # ==================== KAFKA CONSUMER CONFIG ====================
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+      enable-auto-commit: false
+  messages:
+    encoding: UTF-8
+
+  # ==================== EMAIL CONFIG ====================
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+
+    # ==================== SERVLET & MULTIPART CONFIG ====================
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# Actuator configuration for monitoring and management
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+  server:
+    port: 8081
+  tracing:
+    sampling:
+      probability: '1.0'
+#  otlp:
+#    metrics:
+#      export:
+#        url: http://localhost:4318/v1/metrics
+#  opentelemetry:
+#    tracing:
+#      export:
+#        otlp:
+#          endpoint: http://localhost:4318/v1/traces
+#    logging:
+#      export:
+#        otlp:
+#          endpoint: http://localhost:4318/v1/logs
+
+
+# Logging configuration
+logging:
+  level:
+    root: info
+    toolyverse.meerkat: info
+    com.gucardev.eventsphere.infrastructure.config.filter.RequestResponseLoggingFilter: debug
+    org:
+      hibernate:
+        type: trace
+
+# ==================== SWAGGER CONFIGURATION ====================
+springdoc:
+  swagger-ui:
+    enabled: true
+
+# ==================== SECURITY CONFIGURATION ====================
+security:
+  ignored-paths:
+    - "/swagger-resources/**"
+    - "/swagger-ui.html/**"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
+    - "/auth/**"
+    - "/public/**"
+    - "/timezone"
+    - "/time"
+    - "/hello"
+    - "/log-level"
+    # Actuator endpoints
+    - "/actuator/**"
+
+
+  # ==================== AWS S3 CONFIGURATION ====================
+aws:
+  s3:
+    region: ${AWS_S3_REGION}
+    bucket-name: ${AWS_S3_BUCKET_NAME}
+    secret-key: ${AWS_S3_SECRET_KEY}
+    access-key: ${AWS_S3_ACCESS_KEY}
+    endpoint: ${AWS_S3_ENDPOINT}
+
+# ==================== APP SPECIFIC CONFIGURATION ====================
+app-specific-configs:
+  constants:
+    default-auditor: SYSTEM
+  ignored-logging-paths:
+    - "/sw.js"
+    - "/favicon.ico"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
+    - "/actuator/**"
+  security:
+    jwt:
+      secret-key: ${APP_JWT_SECRET_KEY}
+      refresh-token-validity-in-minutes: 90
+      token-validity-in-minutes: 60
+    encryption:
+      secret: ${APP_ENC_SECRET}
+  api:
+    auth:
+      username: ${API_USERNAME}
+      password: ${API_PASSWORD}
+      token: ${API_TOKEN}
+  storage:
+    image-upload-dir: /var/www/api.toolyverse.io/images/
+    image-base-url: https://api.toolyverse.io/images/
+    directory: ./storage
+    allowed-extensions: jpg,jpeg,png,pdf,doc,docx
+
