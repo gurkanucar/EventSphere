@@ -49,4 +49,8 @@ public class BaseFilterRequest {
         return this.sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
     }
 
+    public org.springframework.data.domain.Pageable toPageable() {
+        return org.springframework.data.domain.PageRequest.of(page, size, org.springframework.data.domain.Sort.by(getSortDir(), sortBy));
+    }
+
 }

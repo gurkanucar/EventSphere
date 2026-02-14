@@ -1,6 +1,7 @@
 package com.gucardev.eventsphere.domain.shared.repository.specification;
 
 import com.gucardev.eventsphere.domain.shared.enumeration.DeletedStatus;
+import com.gucardev.eventsphere.domain.shared.model.request.BaseFilterRequest;
 import jakarta.persistence.criteria.Expression;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -70,6 +71,14 @@ public class BaseSpecification {
             LocalDateTime endDateTime = end.atTime(23, 59, 59, 999999999);
             return cb.between(root.get("createdAt"), startDateTime, endDateTime);
         };
+    }
+
+    public static <T> Specification<T> toSpec(BaseFilterRequest filter) {
+        Specification<T> spec = Specification.where(deleted(DeletedStatus.DELETED_FALSE));
+        if (filter.getStartDate() != null && filter.getEndDate() != null) {
+            spec = spec.and(createdBetween(filter.getStartDate(), filter.getEndDate()));
+        }
+        return spec;
     }
 
 }
