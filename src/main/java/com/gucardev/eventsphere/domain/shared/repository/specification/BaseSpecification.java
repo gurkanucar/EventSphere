@@ -54,11 +54,11 @@ public class BaseSpecification {
     public static <T> Specification<T> deleted(DeletedStatus deletedStatus) {
         return (root, query, cb) -> {
             if (deletedStatus == null || deletedStatus == DeletedStatus.DELETED_UNKNOWN) {
-                return null; // No filtering, return all records
+                return null;
             }
             return deletedStatus == DeletedStatus.DELETED_TRUE
-                    ? cb.isTrue(root.get("deletedAt"))
-                    : cb.isFalse(root.get("deletedAt"));
+                    ? cb.isNotNull(root.get("deletedAt"))
+                    : cb.isNull(root.get("deletedAt"));
         };
     }
 
