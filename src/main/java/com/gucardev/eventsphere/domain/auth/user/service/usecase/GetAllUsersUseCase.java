@@ -60,7 +60,8 @@ public class GetAllUsersUseCase implements UseCase<UserFilterRequest, Page<UserR
                 .and(UserSpecification.hasSurnameLike(filter.getSurname()))
                 .and(UserSpecification.hasPhoneNumberLike(filter.getPhoneNumber()))
                 .and(UserSpecification.isActivated(filter.getActivated()))
-                .and(BaseSpecification.createdBetween(filter.getStartDate(), filter.getEndDate()));
+                .and(BaseSpecification.createdBetween(filter.getStartDate(), filter.getEndDate()))
+                .and(UserSpecification.fetchRoles());
 
         return spec;
     }

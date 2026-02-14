@@ -49,4 +49,14 @@ public class UserSpecification extends BaseSpecification {
             return cb.equal(root.get("activated"), activated);
         };
     }
+
+    public static Specification<User> fetchRoles() {
+        return (root, query, cb) -> {
+            if (Long.class != query.getResultType()) {
+                root.fetch("roles", jakarta.persistence.criteria.JoinType.LEFT)
+                        .fetch("permissions", jakarta.persistence.criteria.JoinType.LEFT);
+            }
+            return null;
+        };
+    }
 }
